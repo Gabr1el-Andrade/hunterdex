@@ -10,4 +10,4 @@ app.get("/", (req, res) => {
   res.send("API rodando 🐉");
 });
 
-app.listen(3000, () => console.log("Server on port 3000"));
+app.listen(3000, () => console.log("Srvidor ta em pe 🚀"));
