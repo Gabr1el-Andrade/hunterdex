@@ -3,20 +3,8 @@ const cors = require("cors");
 const authRoutes = require("./modules/auth/auth.routes");
 
 
- //teporario, para testar a conexão com o banco
-const { PrismaClient } = require("@prisma/client")
-const { Pool } = require("pg")
-const { PrismaPg } = require("@prisma/adapter-pg")
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({
-  adapter
-})
-
-  //teporario, para testar a conexão com o banco
+// shared Prisma client instance
+const prisma = require("./prisma").default;
 
 
 const app = express();

@@ -1,30 +1,59 @@
-const { PrismaClient } = require("@prisma/client")
-const { Pool } = require("pg")
-const { PrismaPg } = require("@prisma/adapter-pg")
+// use shared Prisma client instance instead of config
+const prisma = require("../../prisma").default;
+const bcrypt = require("bcrypt");
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
+async function register(data){
 
-const adapter = new PrismaPg(pool)
+  if(!data.email || !data.password || !data.username)
+    throw new Error("Missing fields");
 
-const prisma = new PrismaClient({
-  adapter
-})
+  const exists = await prisma.user.findFirst({
+    where:{
+      OR:[
+        { email:data.email },
+        { username:data.username }
+      ]
+    }
+  });
 
-
-async function register(data) {
+  if(exists)
+    throw new Error("User already exists");
   const hashed = await bcrypt.hash(data.password, 10);
-
   const user = await prisma.user.create({
-    data: {
-      username: data.username,
-      email: data.email,
-      password: hashed
+    data:{
+      username:data.username,
+      email:data.email,
+      password:hashed
+    },
+    select:{
+      id:true,
+      username:true,
+      email:true,
+      createdAt:true
     }
   });
 
   return user;
 }
 
-module.exports = { register };
+async function login(data){
+ const user = await prisma.user.findUnique({
+  where:{ email:data.email }
+ });
+
+ if(!user)
+  throw new Error("Invalid credentials");
+
+ const valid = await bcrypt.compare(data.password,user.password);
+
+ if(!valid)
+  throw new Error("Invalid credentials");
+
+ return {
+  id:user.id,
+  email:user.email,
+  username:user.username
+ };
+}
+
+module.exports = { register, login };
