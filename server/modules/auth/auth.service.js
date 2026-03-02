@@ -1,6 +1,9 @@
 // use shared Prisma client instance instead of config
 const prisma = require("../../prisma").default;
 const bcrypt = require("bcrypt");
+const { generateToken } = require("../../utils/jwt");
+
+
 
 async function register(data){
 
@@ -35,24 +38,25 @@ async function register(data){
 
   return user;
 }
-
 async function login(data){
  const user = await prisma.user.findUnique({
   where:{ email:data.email }
  });
-
  if(!user)
   throw new Error("Invalid credentials");
-
- const valid = await bcrypt.compare(data.password,user.password);
+  const valid = await bcrypt.compare(data.password,user.password);
 
  if(!valid)
   throw new Error("Invalid credentials");
 
+ const token = generateToken(user);
  return {
-  id:user.id,
-  email:user.email,
-  username:user.username
+  user:{
+   id:user.id,
+   username:user.username,
+   email:user.email
+  },
+  token
  };
 }
 

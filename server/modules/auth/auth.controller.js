@@ -1,5 +1,19 @@
 const { login, register } = require("./auth.service");
 const { loginSchema, registerSchema } = require("./auth.validation");
+const { fetchMonsters } = require("../../externalMonster.service");
+
+async function list(req, res) {
+  // Pega o parâmetro 'q' ou 'search' que vem da URL
+  const { q, search } = req.query;
+  const term = q || search;
+
+  console.log("🔍 Buscando por:", term || "Todos");
+
+  // Você precisa passar esse termo para o seu serviço filtrar
+  const data = await fetchMonsters(term); 
+  res.json(data);
+}
+
 async function loginUser(req,res){
  try{
   const parsed = loginSchema.parse(req.body)
@@ -40,4 +54,4 @@ async function registerUser(req,res){
  }
 }
 
-module.exports = { registerUser, loginUser };
+module.exports = { registerUser, loginUser, list };
