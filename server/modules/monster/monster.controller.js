@@ -1,6 +1,13 @@
 const service = require("./monster.service");
 
 async function list(req,res){
+ // Normaliza e trima o termo de busca (q ou search)
+ const term = (req.query.q || req.query.search || "").toString().trim();
+ if (term) {
+  const data = await service.search(term);
+  return res.json(data);
+ }
+
  const data = await service.getAll();
  res.json(data);
 }
@@ -15,7 +22,12 @@ async function byId(req,res){
 }
 
 async function search(req,res){
- const data = await service.search(req.query.q || "");
+ const term = (req.query.q || req.query.search || "").toString().trim();
+
+ if (!term)
+  return res.json([]);
+
+ const data = await service.search(term);
  res.json(data);
 }
 

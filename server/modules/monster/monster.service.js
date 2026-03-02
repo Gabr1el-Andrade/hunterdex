@@ -25,9 +25,12 @@ async function getById(id){
 }
 
 async function search(name){
+ const term = (name || "").toString().trim();
+ if (!term) return [];
+
  const monsters = await getAll();
  return monsters.filter(m =>
-  m.name.toLowerCase().includes(name.toLowerCase())
+  m.name && m.name.toLowerCase().includes(term.toLowerCase())
  );
 }
 

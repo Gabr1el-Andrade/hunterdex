@@ -5,24 +5,17 @@ export function useMonsters(params = {}) {
   return useQuery({
     queryKey: ['monsters', params],
     queryFn: async () => {
-      // LOG PARA DEBUG
-      console.log("🛠️ Montando busca de monstros com params:", params);
-      console.log("🌐 URL Base da API:", api.defaults.baseURL);
-
-      if (params.search) {
-        const url = '/monster/search'; // Verifique se não é /monsters/search
-        console.log(`📡 Chamando: ${url}?q=${params.search}`);
-        const response = await api.get(url, { params: { q: params.search } })
-        return response.data
-      }
-
-      const url = '/monster'; // CUIDADO: Seu backend pode estar esperando '/monsters' ou '/auth/monsters'
-      console.log(`📡 Chamando: ${url}`);
+      // Unificamos: Tudo vai para /monster, o que muda é o parâmetro
+      const response = await api.get('/monster', { 
+        params: { 
+          search: params.search // Enviamos 'search' para bater com o backend
+        } 
+      });
       
-      const response = await api.get(url, { params })
-      return response.data
+      console.log("📦 Dados que chegaram no Front:", response.data);
+      return response.data;
     },
-  })
+  });
 }
 
 export function useMonsterById(id) {
